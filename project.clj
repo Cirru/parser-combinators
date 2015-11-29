@@ -4,6 +4,6 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :plugins [[cirru/lein-sepal "0.0.14"]
-            [cirru/lein-sepal-repl "0.0.5"]]
+            [cirru/lein-sepal-repl "0.0.6"]]
   :cirru-sepal {:paths ["cirru-src", "cirru-test"]}
   :dependencies [[org.clojure/clojure "1.7.0"]])

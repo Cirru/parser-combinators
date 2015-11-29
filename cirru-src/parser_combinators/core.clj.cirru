@@ -2,7 +2,7 @@
 ns parser-combinators.core
   :require
     [] clojure.string :as string
-    [] parser-combinator.characters :as characters
+    [] parser-combinators.characters :as characters
 
 def initial-state $ {}
   :code |
@@ -184,15 +184,15 @@ def parse-newlines
     combine-many parse-line-break
     fn (value is-failed) nil
 
-def parse-token-special $ generate-char-in characters/pecials-in-token
+def parse-token-special $ generate-char-in characters/specials-in-token
 
-def parse-string-special $ generate-char-in characters/pecials-in-string
+def parse-string-special $ generate-char-in characters/specials-in-string
 
 def parse-token-end
   combine-peek $ combine-or
     , parse-whitespace parse-close-paren parse-newlines parse-eof
 
-defn- parse-in-string-char (state)
+defn parse-in-string-char (state)
   if (= (:code state) |)
     fail state "|error eof"
     let
@@ -201,7 +201,7 @@ defn- parse-in-string-char (state)
           , parse-escaped-char
       parser state
 
-defn- parse-in-token-char (state)
+defn parse-in-token-char (state)
   if (= (:code state) |)
     fail state "|error eof"
     (combine-not parse-token-special) state
@@ -225,3 +225,14 @@ def parse-string
       , parse-double-quote
     fn (value is-failed)
       if is-failed nil $ nth value 1
+
+def parse-token
+  combine-value
+    combine-chain
+      combine-value
+        combine-many parse-in-token-char
+        fn (value is-failed)
+          if is-failed nil $ string/join | value
+      combine-value parse-token-end $ fn (value is-failed) nil
+    fn (value is-failed)
+      if is-failed nil $ first value

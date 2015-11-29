@@ -4,12 +4,6 @@ ns parser-combinators.core-test
     [] clojure.test :refer :all
     [] parser-combinators.core :refer :all
 
-
-ns cirru.minifier.parse-test
-  :require
-    [] clojure.test :refer :all
-    [] cirru.minifier.parse :refer :all
-
 deftest parse-open-paren-test
   testing "|test open paren" $ is $ =
     parse-open-paren
