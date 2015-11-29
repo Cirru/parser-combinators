@@ -5,6 +5,8 @@ Clojure library to provide simple parser combinators solution.
 
 ## Usage
 
+[![Clojars Project](http://clojars.org/mvc-works/parser-combinators/latest-version.svg)](http://clojars.org/mvc-works/parser-combinators)
+
 ```clojure
 [mvc-works/parser-combinators "0.0.1"]
 ```
