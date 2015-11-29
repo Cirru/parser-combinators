@@ -76,7 +76,6 @@ parse-string-special
 parse-token-end
 parse-in-string-char
 parse-in-token-char
-parse-in-string-char
 parse-string
 parse-token
 parse-empty-line

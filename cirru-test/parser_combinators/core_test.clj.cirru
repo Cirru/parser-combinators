@@ -4,6 +4,12 @@ ns parser-combinators.core-test
     [] clojure.test :refer :all
     [] parser-combinators.core :refer :all
 
+deftest parse-eof-test
+  testing "|test parse eof" $ is $ =
+    parse-eof
+      assoc initial-state :code |
+    assoc initial-state :code |
+
 deftest parse-open-paren-test
   testing "|test open paren" $ is $ =
     parse-open-paren
@@ -113,3 +119,45 @@ deftest parse-string-test
     parse-string
       assoc initial-state :code "|\"a\""
     assoc initial-state :code | :value |a :msg "|recorvered in not"
+
+deftest parse-empty-line-test
+  testing "|parse empty line" $ is $ =
+    parse-empty-line
+      assoc initial-state :code "|\n  \n"
+    assoc initial-state :value nil :code "|\n"
+
+deftest parse-line-breaks-test
+  testing "|parse line breaks" $ is $ =
+    parse-line-breaks
+      assoc initial-state :code "|\n\na"
+    assoc initial-state :code |a :value nil
+
+deftest parse-two-blanks-test
+  testing "|parse two blanks" $ is $ =
+    parse-two-blanks
+      assoc initial-state :code "|  "
+    assoc initial-state :code | :value 1
+
+deftest parse-indentation-test
+  testing "|parse indentation" $ is $ =
+    parse-indentation
+      assoc initial-state :code "|\n  a"
+    assoc initial-state :code |a :value 1
+
+deftest parse-indent-test
+  testing "|parse indent" $ is $ =
+    parse-indent
+      assoc initial-state :code "|\n  a"
+    assoc initial-state :indentation 1 :code |a
+
+deftest parse-unindent-test
+  testing "|parse unindent" $ is $ =
+    parse-unindent
+      assoc initial-state :code "|\n  a" :indentation 2
+    assoc initial-state :indentation 1 :code |a
+
+deftest parse-align-test
+  testing "|parse align" $ is $ =
+    parse-align
+      assoc initial-state :code "|\n  a" :indentation 1
+    assoc initial-state :indentation 1 :code |a

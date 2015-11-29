@@ -3,6 +3,7 @@ ns parser-combinators.core
   :require
     [] clojure.string :as string
     [] parser-combinators.characters :as characters
+    [] clojure.pprint :as pp
 
 def initial-state $ {}
   :code |
@@ -50,7 +51,7 @@ defn- helper-asterisk (state parser)
     if (:failed result) state
       recur
         assoc result :value
-          conj (into ([])) (:value state) (:value rest)
+          conj (into ([]) (:value state)) (:value rest)
         , parser
 
 defn- helper-chain (state parsers)
@@ -271,26 +272,26 @@ defn parse-token (state)
       if is-failed nil $ first value
 
 defn parse-empty-line (state)
-  call-value-with state
+  call-value-with state $ handle-value
     combine-chain parse-line-break
       combine-asterisk parse-whitespace
       combine-peek (combine-or parse-line-break parse-eof)
+    fn (value is-failed) nil
 
 defn parse-line-breaks (state)
   call-value-with state $ handle-value
     combine-chain
       combine-asterisk parse-empty-line
-      parse-line-break
+      , parse-line-break
     fn (value is-failed) nil
 
 defn parse-two-blanks (state)
-  call-value-with state
-    handle-value
-      combine-times parse-whitespace 2
-      fn (value is-failed) 1
+  call-value-with state $ handle-value
+    combine-times parse-whitespace 2
+    fn (value is-failed) 1
 
 defn parse-indentation (state)
-  handle-value
+  call-value-with state $ handle-value
     combine-chain
       handle-value parse-line-breaks $ fn (value is-failed) nil
       handle-value (combine-asterisk parse-two-blanks)
@@ -299,27 +300,27 @@ defn parse-indentation (state)
       if is-failed 0 (last value)
 
 defn parse-indent (state)
-  call-value-with state $ fn () $ let
+  let
       result $ parse-indentation state
     if
       > (:value result) (:indentation result)
-      assoc state
+      assoc result
         , :indentation (+ (:indentation result) 1)
         , :value nil
       fail result "|no indent"
 
 defn parse-unindent (state)
-  call-value-with state $ fn () $ let
+  let
       result $ parse-indentation state
     if
       < (:value result) (:indentation result)
-      assoc state
+      assoc result
         , :indentation (- (:indentation result) 1)
         , :value nil
       fail result "|no unindent"
 
 defn parse-align (state)
-  call-value-with state $ fn () $ let
+  let
       result (parse-indentation state)
     if
       = (:value result) (:indentation state)
