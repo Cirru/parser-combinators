@@ -67,12 +67,12 @@ defn- helper-chain (state parsers)
           rest parsers
     , state
 
-defn- helper-alternate (state parser-1 parser-2 counter)
+defn- helper-interleave (state parser-1 parser-2 counter)
   let
       result $ parser-1 state
     if (:failed result)
       if (> counter 0) state
-        fail state "|not matching alternate rule"
+        fail state "|not matching interleave rule"
       recur
         assoc result :value
           conj (into ([]) (:value state)) (:value result)
@@ -102,9 +102,9 @@ defn combine-chain (& parsers)
   fn (state)
     helper-chain (assoc state :value ([])) parsers
 
-defn combine-alternate (parser-1 parser-2)
+defn combine-interleave (parser-1 parser-2)
   fn (state)
-    helper-alternate
+    helper-interleave
       assoc state :value (list)
       , parser-1 parser-2 0
 
@@ -133,6 +133,13 @@ defn combine-times (parser n)
     call-value-with state
       apply combine-chain (repeat n parser)
 
+defn combine-optional (parser)
+  fn (state)
+    let
+        inner-state (assoc state :value nil)
+        result (parser inner-state)
+      if (:failed result) inner-state result
+
 -- "|handlers"
 
 defn handle-value (parser handler)
@@ -141,6 +148,13 @@ defn handle-value (parser handler)
         result $ parser state
       assoc result :value
         handler (:value result) (:failed result)
+
+defn transform-value (parser handler)
+  fn (state) $ let
+      result $ parser state
+    assoc result :value
+      if (:failed result) nil
+        handler (:value result)
 
 -- "|generators"
 
@@ -173,6 +187,18 @@ defn generate-char-in (xs)
             , :code $ subs-rest (:code state)
             , :value $ subs-first (:code state)
           , "|not in char list"
+      fail state "|error eof"
+
+defn generate-chars (x)
+  fn (state)
+    if
+      >= (count x) (count (:code state))
+      if
+        = (.indexOf (:code state) x) 0
+        assoc state
+          , :code $ subs (:code state) (count x)
+          , :value x
+        fail (assoc state :value nil) "|not expected pattern"
       fail state "|error eof"
 
 -- "|parsers"
@@ -209,14 +235,14 @@ defn parse-escaped-char (state)
         , :msg "|no escaped character"
 
 def parse-blanks
-  handle-value
+  transform-value
     combine-some parse-whitespace
-    fn (value is-failed) nil
+    fn (value) nil
 
 def parse-newlines
-  handle-value
+  transform-value
     combine-some parse-line-break
-    fn (value is-failed) nil
+    fn (value) nil
 
 def parse-token-special $ generate-char-in characters/specials-in-token
 
@@ -250,54 +276,49 @@ defn parse-in-string-char (state)
       parser state
 
 defn parse-string (state)
-  call-value-with state $ handle-value
+  call-value-with state $ transform-value
     combine-chain parse-double-quote
-      handle-value
+      transform-value
         combine-some parse-in-string-char
-        fn (value is-failed)
-          if is-failed nil $ string/join | value
+        fn (value) $ string/join | value
       , parse-double-quote
-    fn (value is-failed)
-      if is-failed nil $ nth value 1
+    fn (value) $ nth value 1
 
 defn parse-token (state)
-  call-value-with state $ handle-value
+  call-value-with state $ transform-value
     combine-chain
-      handle-value
+      transform-value
         combine-some parse-in-token-char
-        fn (value is-failed)
-          if is-failed nil $ string/join | value
-      handle-value parse-token-end $ fn (value is-failed) nil
-    fn (value is-failed)
-      if is-failed nil $ first value
+        fn (value) $ string/join | value
+      transform-value parse-token-end $ fn (value) nil
+    fn (value) $ first value
 
 defn parse-empty-line (state)
-  call-value-with state $ handle-value
+  call-value-with state $ transform-value
     combine-chain parse-line-break
       combine-asterisk parse-whitespace
       combine-peek (combine-or parse-line-break parse-eof)
-    fn (value is-failed) nil
+    fn (value) nil
 
 defn parse-line-breaks (state)
-  call-value-with state $ handle-value
+  call-value-with state $ transform-value
     combine-chain
       combine-asterisk parse-empty-line
       , parse-line-break
-    fn (value is-failed) nil
+    fn (value) nil
 
 defn parse-two-blanks (state)
-  call-value-with state $ handle-value
+  call-value-with state $ transform-value
     combine-times parse-whitespace 2
-    fn (value is-failed) 1
+    fn (value) 1
 
 defn parse-indentation (state)
-  call-value-with state $ handle-value
+  call-value-with state $ transform-value
     combine-chain
-      handle-value parse-line-breaks $ fn (value is-failed) nil
-      handle-value (combine-asterisk parse-two-blanks)
-        fn (value is-failed) (count value)
-    fn (value is-failed)
-      if is-failed 0 (last value)
+      transform-value parse-line-breaks $ fn (value) nil
+      transform-value (combine-asterisk parse-two-blanks)
+        fn (value) (count value)
+    fn (value) (last value)
 
 defn parse-indent (state)
   let

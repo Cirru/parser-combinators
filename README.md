@@ -39,17 +39,19 @@ Some combinators to build larger parser:
 combine-some
 combine-asterisk
 combine-chain
-combine-alternate
+combine-interleave
 combine-or
 combine-opposite
 combine-peek
 combine-times
+combine-optional
 ```
 
 Special function to handle values:
 
 ```clojure
 handle-value
+transform-value
 ```
 
 Generators of some very simple parser:
@@ -57,6 +59,7 @@ Generators of some very simple parser:
 ```clojure
 generate-char
 generate-char-in
+generate-chars
 ```
 
 Some parsers defined in parsing Cirru, you may use them.
