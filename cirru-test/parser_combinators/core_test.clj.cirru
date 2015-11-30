@@ -49,8 +49,8 @@ deftest parse-line-break-test
 deftest parse-escaped-char-test
   testing "|test escaped char" $ is $ =
     parse-escaped-char
-      assoc initial-state :code "|\\\\a"
-    assoc initial-state :code |a :value "|\\"
+      assoc initial-state :code "|\\\"a"
+    assoc initial-state :code |a :value "|\""
 
 deftest parse-blanks-test
   testing "|test blanks" $ is $ =

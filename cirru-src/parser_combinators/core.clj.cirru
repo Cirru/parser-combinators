@@ -26,6 +26,9 @@ defn- subs-rest (code)
 defn- match-first (state character)
   = (subs-first (:code state)) character
 
+defn- match-two (state character)
+  = (subs (:code state) 0 2) character
+
 defn- fail (state msg)
   assoc state :failed true :msg msg
 
@@ -51,7 +54,7 @@ defn- helper-asterisk (state parser)
     if (:failed result) state
       recur
         assoc result :value
-          conj (into ([]) (:value state)) (:value rest)
+          conj (into ([]) (:value state)) (:value result)
         , parser
 
 defn- helper-chain (state parsers)
@@ -221,13 +224,13 @@ defn parse-escaped-char (state)
   if (< (count (:code state)) 2)
     fail state "|error eof"
     cond
-      (match-first state "|n")
+      (match-two state "|\\n")
         assoc state :value "|\n" :code (subs (:code state) 2)
-      (match-first state "|t")
+      (match-two state "|\\t")
         assoc state :value "|\t" :code (subs (:code state) 2)
-      (match-first state "|\"")
+      (match-two state "|\\\"")
         assoc state :value "|\"" :code (subs (:code state) 2)
-      (match-first state "|\\")
+      (match-two state "|\\\\")
         assoc state :value "|\\" :code (subs (:code state) 2)
       :else $ assoc state :failed true
         , :value $ subs-first (:code state)
@@ -252,15 +255,6 @@ def parse-token-end
   combine-peek $ combine-or
     , parse-whitespace parse-close-paren parse-newlines parse-eof
 
-defn parse-in-string-char (state)
-  if (= (:code state) |)
-    fail state "|error eof"
-    let
-        parser $ combine-or
-          combine-opposite parse-string-special
-          , parse-escaped-char
-      parser state
-
 defn parse-in-token-char (state)
   if (= (:code state) |)
     fail state "|error eof"
@@ -279,7 +273,7 @@ defn parse-string (state)
   call-value-with state $ transform-value
     combine-chain parse-double-quote
       transform-value
-        combine-some parse-in-string-char
+        combine-asterisk parse-in-string-char
         fn (value) $ string/join | value
       , parse-double-quote
     fn (value) $ nth value 1
