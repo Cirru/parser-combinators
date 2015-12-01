@@ -60,6 +60,7 @@ Generators of some very simple parser:
 generate-char
 generate-char-in
 generate-chars
+generate-char-match
 ```
 
 Some parsers defined in parsing Cirru, you may use them.

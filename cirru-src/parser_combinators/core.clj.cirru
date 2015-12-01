@@ -172,7 +172,7 @@ defn generate-char (x)
         fail
           assoc state
             , :code $ subs-rest (:code state)
-            , :value x
+            , :value $ subs-first (:code state)
           , "|failed matching character"
       fail state "|error eof"
 
@@ -204,12 +204,12 @@ defn generate-chars (x)
         fail (assoc state :value nil) "|not expected pattern"
       fail state "|error eof"
 
-defn generate-char-match (x)
+defn generate-char-match (pattern)
   fn (state)
     if
       > (count (:code state)) 0
       if
-        re-find (re-pattern "|\d") (subs (:code state) 0 1)
+        re-find pattern (subs (:code state) 0 1)
         assoc state
           , :value $ subs-first (:code state)
           , :code $ subs-rest (:code state)

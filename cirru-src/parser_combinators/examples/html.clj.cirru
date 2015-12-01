@@ -10,6 +10,16 @@ ns parser-combinators.examples.html
 defn- call-value-with (value handler)
   handler value
 
+defn- helper-value-interleave (result value index)
+  if (> (count value) 0)
+    recur
+      if (even? index)
+        conj result (first value)
+        , result
+      rest value
+      inc index
+    , result
+
 -- "|parsers"
 
 declare parse-chunk
@@ -28,37 +38,58 @@ defn parse-not-tag (state)
 def parse-letter $ generate-char-match (re-pattern "|[a-z]")
 def parse-digit $ generate-char-match (re-pattern "|[0-9]")
 
-def parse-text $ combine-asterisk parse-not-tag
+def parse-text $ transform-value
+  combine-some parse-not-tag
+  fn (value) $ string/join | value
 
-def parse-seperation $ combine-some parse-whitespace
+def parse-seperation $ transform-value
+  combine-some parse-whitespace
+  fn (value) nil
 
-def parse-tag-name $ combine-chain parse-letter
-  combine-asterisk $ combine-or parse-letter parse-digit parse-hyphen
+def parse-tag-name $ transform-value
+  combine-chain parse-letter
+    transform-value
+      combine-asterisk $ combine-or parse-letter parse-digit parse-hyphen
+      fn (value) $ string/join | value
+  fn (value) $ string/join | value
 
-def parse-attr $ combine-chain parse-letter
-  combine-asterisk $ combine-or parse-letter parse-digit parse-hyphen
+def parse-attr $ transform-value
+  combine-chain parse-letter
+    transform-value
+      combine-asterisk $ combine-or parse-letter parse-digit parse-hyphen
+      fn (value) $ string/join | value
+  fn (value) $ string/join | value
 
 def parse-entry $ combine-chain parse-attr parse-equal parse-string
 
-def parse-attributes $ combine-asterisk
-  combine-some parse-entry
+def parse-attributes $ transform-value
+  combine-interleave parse-entry parse-seperation
+  fn (value) $ helper-value-interleave ([]) value 0
 
-def parse-open-tag $ combine-chain parse-lt parse-tag-name
-  , parse-seperation parse-attributes parse-seperation parse-gt
+def parse-open-tag $ transform-value
+  combine-chain parse-lt parse-tag-name
+    combine-optional parse-seperation
+    combine-optional parse-attributes
+    , parse-gt
+  fn (value) $ [] (get value 1)
+    or (get value 3) ([])
 
-def parse-close-tag $ combine-chain parse-lt
-  , parse-slash parse-seperation parse-tag-name parse-gt
+def parse-close-tag $ transform-value
+  combine-chain parse-lt
+    , parse-slash (combine-optional parse-seperation) parse-tag-name parse-gt
+  fn (value) (get value 3)
 
-def parse-self-close-tag $ combine-chain parse-lt parse-tag-name
-  , parse-seperation parse-attributes parse-seperation
-  , parse-slash parse-gt
+def parse-self-close-tag $ transform-value
+  combine-chain parse-lt parse-tag-name
+    combine-optional parse-seperation
+    combine-optional parse-attributes
+    , parse-slash parse-gt
+  fn (value) $ [] (get value 1) (or (get value 3) ([]))
 
 def parse-normal-tag $ combine-chain parse-open-tag
   , parse-chunk parse-close-tag
 
 def parse-tag $ combine-or parse-self-close-tag parse-normal-tag
 
-def parse-chunk $ combine-some
+def parse-html $ combine-some
   combine-or parse-text parse-tag
-
-def parse-html $ combine-or parse-chunk parse-tag
