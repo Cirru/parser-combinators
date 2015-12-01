@@ -204,6 +204,21 @@ defn generate-chars (x)
         fail (assoc state :value nil) "|not expected pattern"
       fail state "|error eof"
 
+defn generate-char-match (x)
+  fn (state)
+    if
+      > (count (:code state)) 0
+      if
+        re-find (re-pattern "|\d") (subs (:code state) 0 1)
+        assoc state
+          , :value $ subs-first (:code state)
+          , :code $ subs-rest (:code state)
+        assoc state :failed true
+          , :msg "|no matching pattern"
+          , :value $ subs-first (:code state)
+          , :code $ subs-rest (:code state)
+      fail state "|error eof"
+
 -- "|parsers"
 
 declare parse-line
