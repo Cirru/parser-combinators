@@ -8,14 +8,25 @@ Clojure library to provide simple parser combinators solution.
 [![Clojars Project](http://clojars.org/mvc-works/parser-combinators/latest-version.svg)](http://clojars.org/mvc-works/parser-combinators)
 
 ```clojure
-[mvc-works/parser-combinators "0.0.1"]
+[mvc-works/parser-combinators "0.0.3"]
 ```
 
 ```clojure
 '[parser-combinators.core :refer :all]
 ```
 
-Examples: JSON parser(TODO), indentation parser(TODO).
+Examples:
+
+* [simplified JSON parser][json-example]
+* [simplified HTML parser][html-example]
+* indentation parser(TODO)
+* S-expression parser(TODO)
+* markdown parser(TODO)
+* Old S-expression parser https://github.com/Cirru/minifier.clj
+* Old indentation parser in Cirru https://github.com/Cirru/parser-combinator.clj
+
+[json-example]: https://github.com/mvc-works/parser-combinators/blob/master/cirru-src/parser_combinators/examples/json.clj.cirru
+[html-example]: https://github.com/mvc-works/parser-combinators/blob/master/cirru-src/parser_combinators/examples/html.clj.cirru
 
 #### Exposed APIs
 
