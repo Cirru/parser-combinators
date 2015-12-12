@@ -1,4 +1,4 @@
-(defproject mvc-works/parser-combinators "0.0.3"
+(defproject mvc-works/parser-combinators "0.0.4"
   :description "Simple Parser Combinators solution in Clojure"
   :url "http://github.com/mvc-works/parser-combinators"
   :license {:name "Eclipse Public License"
