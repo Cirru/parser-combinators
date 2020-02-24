@@ -38,8 +38,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-clojars
 
+      - run: yarn
+
       - name: run tests
-        run: 'yarn && yarn shadow-cljs compile client'
+        run: yarn shadow-cljs compile test && node target/test.js
 
       - run: echo Working on ${{ github.ref }}
 

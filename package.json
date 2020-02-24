@@ -4,7 +4,7 @@
   "scripts": {
     "m2": "clojure -A:depstar && clojure -A:install",
     "deploy": "clojure -A:depstar && clojure -A:deploy",
-    "watch": "yarn shadow-cljs watch app"
+    "watch": "yarn shadow-cljs watch app test"
   },
   "main": "index.js",
   "repository": "git@github.com:mvc-works/calcit-nodejs-workflow.git",

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>mvc-works</groupId>
   <artifactId>parser-combinators</artifactId>
-  <version>0.0.4</version>
+  <version>0.0.5-a1</version>
   <name>parser-combinators</name>
 
   <url>http://github.com/mvc-works/parser-combinators</url>
