@@ -94,7 +94,12 @@
     (fn [value] (get value 1)))))
 
 (def parse-item
-  (pc/combine-or parse-null parse-number pc/parse-string parse-array parse-object))
+  (pc/combine-or
+   parse-null
+   parse-number
+   pc/parse-string
+   parse-array
+   (fn [x] (parse-object x))))
 
 (def parse-object
   (pc/transform-value

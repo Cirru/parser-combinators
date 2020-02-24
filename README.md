@@ -8,7 +8,7 @@ Clojure library to provide simple parser combinators solution.
 [![Clojars Project](http://clojars.org/mvc-works/parser-combinators/latest-version.svg)](http://clojars.org/mvc-works/parser-combinators)
 
 ```clojure
-[mvc-works/parser-combinators "0.0.3"]
+[mvc-works/parser-combinators "0.0.5-a1"]
 ```
 
 Examples:
@@ -99,6 +99,40 @@ parse-indent
 parse-unindent
 parse-align
 ```
+
+### `nil` in recursion
+
+There's an edge case in combing the parser that when you call:
+
+```clojure
+(def parse-item
+  (pc/combine-or
+   parse-null
+   parse-number
+   pc/parse-string
+   parse-array
+   (fn [x] (parse-object x))))
+```
+
+since combination rules are defined recursively but not in functions, `parse-object` can be `nil` when used on `parse-item` since `parse-object` is actually using `parse-item`, which is like:
+
+```text
+# arrow means depends on...
+parse-json -> parse-object -> parse-item -> parse-object -> parse-item -> ...
+```
+
+and `nil` is definitely not a valid parser. So in order to treat the combinator, use a function instead.
+
+```clojure
+(def parse-item
+  (pc/combine-or
+   parse-null
+   parse-number
+   pc/parse-string
+   parse-array
+   (fn [x] (parse-object x))))
+```
+
 
 ## Where's Clojure code?
 

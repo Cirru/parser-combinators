@@ -39,5 +39,5 @@ jobs:
       - run: yarn
         name: Get deps
 
-      - run: yarn shadow-cljs compile app && node target/test.js
+      - run: yarn shadow-cljs compile test && node target/test.js
         name: Test
