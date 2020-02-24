@@ -1,14 +1,8 @@
-/target
-/classes
-/checkouts
-pom.xml
-pom.xml.asc
-*.jar
-*.class
-/.lein-*
-/.nrepl-port
-.hgignore
-.hg/
 
-/src
-/test
+/target/
+/dist
+/node_modules
+.cpcache/
+.shadow-cljs/
+
+.nrepl-port

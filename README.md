@@ -11,10 +11,6 @@ Clojure library to provide simple parser combinators solution.
 [mvc-works/parser-combinators "0.0.3"]
 ```
 
-```clojure
-'[parser-combinators.core :refer :all]
-```
-
 Examples:
 
 * [simplified JSON parser][json-example]
