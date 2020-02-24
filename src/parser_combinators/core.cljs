@@ -60,7 +60,9 @@
       (if (:failed result) (recur state (rest parsers)) result))
     (fail state "no parser is successful")))
 
-(defn combine-or [& parsers] (fn [state] (helper-or state parsers)))
+(defn combine-or [& parsers]
+  (assert (not (some nil? parsers)) "nil parser is not allowed to be passed to \"or\" rule")
+  (fn [state] (helper-or state parsers)))
 
 (defn combine-peek [parser]
   (fn [state]
