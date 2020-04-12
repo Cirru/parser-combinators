@@ -1,11 +1,13 @@
-{:source-paths ["src"]
- ; :repositories {"central" {:url "https://maven.aliyun.com/nexus/content/groups/public/"}
- ;                "clojars" {:url "https://mirrors.ustc.edu.cn/clojars/"}}
- :dependencies [[medley         "1.2.0"]]
- :builds {:test {:target :node-test
-                :output-to "target/test.js"
-                :ns-regexp "test$"}
-          :app {:target :node-script
-                :output-to "target/example.js"
-                :main parser-combinators.example/main!
-                :devtools {:after-load parser-combinators.example/main!}}}}
+{
+  :source-paths ["src"]
+  :dependencies [
+    [medley "1.3.0"]
+  ]
+  :builds {
+    :test {:target :node-test, :output-to "target/test.js", :ns-regexp "test$"}
+    :app {
+      :target :node-script, :output-to "target/example.js", :main parser-combinators.example/main!
+      :devtools {:after-load parser-combinators.example/main!}
+    }
+  }
+}

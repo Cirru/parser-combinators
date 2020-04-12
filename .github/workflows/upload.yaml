@@ -1,5 +1,5 @@
 
-name: Test
+name: Upload Assets
 
 on:
   pull_request: {}
@@ -8,7 +8,7 @@ on:
       - master
 
 jobs:
-  test:
+  upload-assets:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -37,7 +37,6 @@ jobs:
             ${{ runner.os }}-clojars
 
       - run: yarn
-        name: Get deps
 
       - run: yarn shadow-cljs compile test && node target/test.js
-        name: Test
+        name: tests

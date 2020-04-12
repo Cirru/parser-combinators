@@ -1,0 +1,6 @@
+{:version "0.0.5-a1"
+ :group-id "mvc-works"
+ :artifact-id "parser-combinators"
+ :skip-tag true
+ :description "Simple Parser Combinators solution in Clojure"
+ :scm-url "https://github.com/mvc-works/parser-combinators"}
